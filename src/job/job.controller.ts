@@ -34,6 +34,10 @@ export class JobController {
   createJob = async (req: Request, res: Response): Promise<void> => {
     try {
       const jobData = req.body;
+      if (!jobData || !jobData.title) {
+        res.status(400).json({ message: 'Title is required' });
+        return;
+      }
       const job = await this.jobService.createJob(jobData);
       res.status(201).json(job);
     } catch (error) {
@@ -45,7 +49,7 @@ export class JobController {
     try {
       const jobId = parseInt(req.params.jobId as string);
       const { skills } = req.body; // expect { skills: ['skill1', 'skill2'] }
-      if (!Array.isArray(skills)) {
+      if (!Array.isArray(skills) || !skills.every((s) => typeof s === 'string')) {
         res.status(400).json({ message: 'Skills should be an array of strings' });
         return;
       }

@@ -34,6 +34,10 @@ export class UserController {
   createUser = async (req: Request, res: Response): Promise<void> => {
     try {
       const userData = req.body;
+      if (!userData || !userData.name) {
+        res.status(400).json({ message: 'Name is required' });
+        return;
+      }
       const user = await this.userService.createUser(userData);
       res.status(201).json(user);
     } catch (error) {

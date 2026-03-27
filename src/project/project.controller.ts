@@ -34,6 +34,10 @@ export class ProjectController {
   createProject = async (req: Request, res: Response): Promise<void> => {
     try {
       const projectData = req.body;
+      if (!projectData || !projectData.name) {
+        res.status(400).json({ message: 'Name is required' });
+        return;
+      }
       const project = await this.projectService.createProject(projectData);
       res.status(201).json(project);
     } catch (error) {
