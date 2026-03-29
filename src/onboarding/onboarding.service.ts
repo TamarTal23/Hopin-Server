@@ -1,7 +1,7 @@
 import { AppDataSource } from '../database';
 import { Job } from '../database/entities/job.entity';
 import { User } from '../database/entities/user.entity';
-import { buildOnboardingPrompt } from '../prompts/onboarding.prompt';
+import { buildOnboardingPrompt } from './onboarding.prompt';
 import { LLMService, OnboardingTask } from './llm.service';
 
 export interface GenerateOnboardingInput {
@@ -55,8 +55,6 @@ export class OnboardingService {
       documents,
     });
 
-    const tasks = await this.llmService.generateOnboardingTasks(prompt);
-
-    return tasks;
+    return this.llmService.generateOnboardingTasks(prompt);
   }
 }

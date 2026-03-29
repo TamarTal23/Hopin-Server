@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import userRoutes from '../user/user.routes';
 import jobRoutes from '../job/job.routes';
 import projectRoutes from '../project/project.routes';
-import onboardingRoutes from './onboarding.routes';
+import onboardingRoutes from '../onboarding/onboarding.routes';
 
 const router = Router();
 
