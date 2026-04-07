@@ -8,6 +8,10 @@ type AuthTokens = {
     refreshToken: string;
 };
 
+const issuer = 'hopin-api';
+const audience = 'hopin-client';
+
+
 const ACCESS_TOKEN_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRES_IN || '15m';
 const REFRESH_TOKEN_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 const REFRESH_TOKEN_TTL_DAYS = parseInt(process.env.REFRESH_TOKEN_TTL_DAYS || '7', 10);
@@ -27,14 +31,14 @@ const REFRESH_TOKEN_SECRET = getRequiredSecret('JWT_REFRESH_SECRET');
 
 const ACCESS_SIGN_OPTIONS: SignOptions = {
     expiresIn: ACCESS_TOKEN_EXPIRES_IN as SignOptions['expiresIn'],
-    issuer: 'hopin-api',
-    audience: 'hopin-client',
+    issuer,
+    audience,
 };
 
 const REFRESH_SIGN_OPTIONS: SignOptions = {
     expiresIn: REFRESH_TOKEN_EXPIRES_IN as SignOptions['expiresIn'],
-    issuer: 'hopin-api',
-    audience: 'hopin-client',
+    issuer,
+    audience,
 };
 
 export class AuthService {
@@ -79,8 +83,8 @@ export class AuthService {
 
         try {
             payload = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, {
-                issuer: 'hopin-api',
-                audience: 'hopin-client',
+                issuer,
+                audience,
             }) as JwtPayload;
         } catch (_error) {
             throw new Error('Invalid refresh token');
@@ -114,8 +118,8 @@ export class AuthService {
 
     verifyAccessToken(token: string): JwtPayload {
         return jwt.verify(token, ACCESS_TOKEN_SECRET, {
-            issuer: 'hopin-api',
-            audience: 'hopin-client',
+            issuer,
+            audience,
         }) as JwtPayload;
     }
 
