@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express';
+import authRoutes from '../auth/auth.routes';
 import userRoutes from '../user/user.routes';
 import jobRoutes from '../job/job.routes';
 import projectRoutes from '../project/project.routes';
 
 const router = Router();
 
+router.use('/', authRoutes);
 router.use('/', userRoutes);
 router.use('/', jobRoutes);
 router.use('/', projectRoutes);
