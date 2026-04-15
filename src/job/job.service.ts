@@ -1,5 +1,5 @@
-import { Job } from './job.entity';
-import { JobRepository } from './job.repository';
+import { Job } from "./job.entity";
+import { JobRepository } from "./job.repository";
 
 export class JobService {
   private jobRepository: JobRepository;
@@ -20,7 +20,10 @@ export class JobService {
     return this.jobRepository.create(jobData);
   }
 
-  async addSkillsToJob(jobId: number, skillNames: string[]): Promise<Job | null> {
+  async addSkillsToJob(
+    jobId: number,
+    skillNames: string[]
+  ): Promise<Job | null> {
     return this.jobRepository.addSkillsToJob(jobId, skillNames);
   }
 }

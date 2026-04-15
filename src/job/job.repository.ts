@@ -1,7 +1,7 @@
-import { Repository } from 'typeorm';
-import { AppDataSource } from '../database/data-source';
-import { Job } from '../job/job.entity';
-import { Skill } from '../database/entities/skill.entity';
+import { Repository } from "typeorm";
+import { AppDataSource } from "../database/data-source";
+import { Job } from "../job/job.entity";
+import { Skill } from "../database/entities/skill.entity";
 
 export class JobRepository {
   private jobRepository: Repository<Job>;
@@ -14,14 +14,14 @@ export class JobRepository {
 
   async findAll(): Promise<Job[]> {
     return this.jobRepository.find({
-      relations: ['skills', 'project']
+      relations: ["skills", "project"],
     });
   }
 
   async findById(id: number): Promise<Job | null> {
     return this.jobRepository.findOne({
       where: { id },
-      relations: ['skills', 'project']
+      relations: ["skills", "project"],
     });
   }
 
@@ -30,23 +30,30 @@ export class JobRepository {
     return this.jobRepository.save(job);
   }
 
-  async addSkillsToJob(jobId: number, skillNames: string[]): Promise<Job | null> {
+  async addSkillsToJob(
+    jobId: number,
+    skillNames: string[]
+  ): Promise<Job | null> {
     const job = await this.jobRepository.findOne({
       where: { id: jobId },
-      relations: ['skills']
+      relations: ["skills"],
     });
     if (!job) return null;
 
     // Fetch existing skills in one query
     const existingSkills = await this.skillRepository.find({
-      where: skillNames.map(name => ({ name }))
+      where: skillNames.map(name => ({ name })),
     });
     const existingSkillNames = new Set(existingSkills.map(skill => skill.name));
 
     // Create missing skills
-    const skillsToCreate = skillNames.filter(name => !existingSkillNames.has(name));
+    const skillsToCreate = skillNames.filter(
+      name => !existingSkillNames.has(name)
+    );
     const newSkills = await Promise.all(
-      skillsToCreate.map(name => this.skillRepository.save(this.skillRepository.create({ name })))
+      skillsToCreate.map(name =>
+        this.skillRepository.save(this.skillRepository.create({ name }))
+      )
     );
 
     // Combine existing and new skills
