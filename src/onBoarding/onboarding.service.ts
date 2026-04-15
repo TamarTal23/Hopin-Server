@@ -1,12 +1,12 @@
-import { AppDataSource } from '../database';
-import { Job } from '../database/entities/job.entity';
-import { User } from '../database/entities/user.entity';
-import { buildOnboardingPrompt } from '../prompts/onboarding.prompt';
-import { LLMService } from '../services/llm.service';
-import { Task } from '../task/task.entity';
-import { TaskService } from '../task/task.service';
-import { Onboarding } from './onBoarding.entity';
-import { OnboardingRepository } from './onBoarding.repository';
+import { AppDataSource } from "../database";
+import { User } from "../database/entities/user.entity";
+import { Job } from "../job/job.entity";
+import { buildOnboardingPrompt } from "../prompts/onboarding.prompt";
+import { LLMService } from "../services/llm.service";
+import { Task } from "../task/task.entity";
+import { TaskService } from "../task/task.service";
+import { Onboarding } from "./onBoarding.entity";
+import { OnboardingRepository } from "./onBoarding.repository";
 
 export interface GenerateOnboardingInput {
   userId: number;
@@ -25,9 +25,18 @@ export class OnboardingService {
     this.onboardingRepository = new OnboardingRepository();
   }
 
-
   async getOnBoardingById(id: number): Promise<Onboarding | null> {
     return this.onboardingRepository.getOnboarding(id);
+  }
+
+  async getOnboarding(
+    userId: number,
+    jobId: number
+  ): Promise<Onboarding | null> {
+    return this.onboardingRepository.getOnboardingByUserIdAndJobId(
+      userId,
+      jobId
+    );
   }
 
   async generateBoard(input: GenerateOnboardingInput): Promise<Onboarding> {
@@ -39,11 +48,11 @@ export class OnboardingService {
     const [user, job] = await Promise.all([
       userRepo.findOne({
         where: { id: userId },
-        relations: ['skills'],
+        relations: ["skills"],
       }),
       jobRepo.findOne({
         where: { id: jobId },
-        relations: ['skills', 'project'],
+        relations: ["skills", "project"],
       }),
     ]);
 
@@ -54,7 +63,9 @@ export class OnboardingService {
       throw new Error(`Job with id ${jobId} not found`);
     }
     if (!job.project) {
-      throw new Error(`Job with id ${jobId} is not associated with any project`);
+      throw new Error(
+        `Job with id ${jobId} is not associated with any project`
+      );
     }
 
     const onboarding = await this.onboardingRepository.createOnboarding({
@@ -67,9 +78,9 @@ export class OnboardingService {
       onboardingId: onboarding.id,
       userName: user.name,
       userExperienceYears: user.experienceYears,
-      userSkills: user.skills.map((s) => s.name),
+      userSkills: user.skills.map(s => s.name),
       jobTitle: job.title,
-      jobRequiredSkills: job.skills.map((s) => s.name),
+      jobRequiredSkills: job.skills.map(s => s.name),
       projectName: job.project.name,
       projectDescription: job.project.description,
       documents,
@@ -77,16 +88,18 @@ export class OnboardingService {
 
     const tasks = await this.llmService.generateOnboardingTasks(prompt);
     await this.taskService.createTasks(
-      tasks.map((task) => ({
+      tasks.map(task => ({
         ...task,
         onboarding,
-      })),
+      }))
     );
 
     const fullOnboarding = await this.getOnBoardingById(onboarding.id);
- 
+
     if (!fullOnboarding) {
-      throw new Error(`Onboarding with id ${onboarding.id} could not be retrieved after save`);
+      throw new Error(
+        `Onboarding with id ${onboarding.id} could not be retrieved after save`
+      );
     }
 
     return fullOnboarding;

@@ -1,4 +1,4 @@
-import { Job } from '../database/entities/job.entity';
+import { Job } from './job.entity';
 import { JobRepository } from './job.repository';
 
 export class JobService {

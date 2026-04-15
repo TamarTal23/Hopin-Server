@@ -2,8 +2,8 @@ import 'reflect-metadata';
 import { AppDataSource } from '../database/data-source';
 import { User } from '../database/entities/user.entity';
 import { Skill } from '../database/entities/skill.entity';
-import { Job } from '../database/entities/job.entity';
-import { Project } from '../database/entities/project.entity';
+import { Job } from '../job/job.entity';
+import { Project } from '../project/project.entity';
 
 async function seed() {
   try {

@@ -1,4 +1,4 @@
-import { Project } from '../database/entities/project.entity';
+import { Project } from './project.entity';
 import { ProjectRepository } from './project.repository';
 
 export class ProjectService {
