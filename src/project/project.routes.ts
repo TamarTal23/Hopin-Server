@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { ProjectController } from './project.controller';
+import { authenticateAccessToken } from '../auth/auth.middleware';
 
 const router = Router();
 const projectController = new ProjectController();
