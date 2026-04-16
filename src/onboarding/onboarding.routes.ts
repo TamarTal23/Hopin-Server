@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { OnboardingController } from './onboarding.controller';
+import { onboardingController } from './onboarding.controller';
 
 const router = Router();
-const onboardingController = new OnboardingController();
 
-router.post('/onboarding/generate', onboardingController.generateOnboarding);
+router.get('/user/:userId/job/:jobId', onboardingController.getOnboarding);
+router.post('/generate', onboardingController.generateOnboarding);
 
 export default router;
