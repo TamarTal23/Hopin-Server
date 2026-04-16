@@ -11,8 +11,10 @@ export class UserController {
   getAllUsers = async (req: Request, res: Response): Promise<void> => {
     try {
       const users = await this.userService.getAllUsers();
+
       res.json(users);
     } catch (error) {
+      console.error('Error in getAllUsers:', error);
       res.status(500).json({ message: 'Error fetching users' });
     }
   };

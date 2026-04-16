@@ -1,6 +1,6 @@
-import { Repository } from 'typeorm';
-import { AppDataSource } from '../database/data-source';
-import { Project } from '../database/entities/project.entity';
+import { Repository } from "typeorm";
+import { AppDataSource } from "../database/data-source";
+import { Project } from "../project/project.entity";
 
 export class ProjectRepository {
   private repository: Repository<Project>;
@@ -11,14 +11,14 @@ export class ProjectRepository {
 
   async findAll(): Promise<Project[]> {
     return this.repository.find({
-      relations: ['jobs']
+      relations: ["jobs"],
     });
   }
 
   async findById(id: number): Promise<Project | null> {
     return this.repository.findOne({
       where: { id },
-      relations: ['jobs']
+      relations: ["jobs"],
     });
   }
 

@@ -5,8 +5,8 @@ import { authenticateAccessToken } from '../auth/auth.middleware';
 const router = Router();
 const projectController = new ProjectController();
 
-router.get('/projects', projectController.getAllProjects);
-router.get('/projects/:id', projectController.getProjectById);
-router.post('/projects', authenticateAccessToken, projectController.createProject);
+router.get('/', projectController.getAllProjects);
+router.get('/:id', projectController.getProjectById);
+router.post('/', projectController.createProject);
 
 export default router;
