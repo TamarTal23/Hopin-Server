@@ -1,12 +1,12 @@
-import { AppDataSource } from "../database";
-import { User } from "../database/entities/user.entity";
-import { Job } from "../job/job.entity";
-import { buildOnboardingPrompt } from "../prompts/onboarding.prompt";
-import { LLMService } from "../services/llm.service";
-import { Task } from "../task/task.entity";
-import { TaskService } from "../task/task.service";
-import { Onboarding } from "./onBoarding.entity";
-import { OnboardingRepository } from "./onBoarding.repository";
+import { AppDataSource } from '../database';
+import { User } from '../database/entities/user.entity';
+import { Job } from '../job/job.entity';
+import { buildOnboardingPrompt } from '../prompts/onboarding.prompt';
+import { LLMService } from '../services/llm.service';
+import { Task } from '../task/task.entity';
+import { TaskService } from '../task/task.service';
+import { Onboarding } from './onBoarding.entity';
+import { OnboardingRepository } from './onBoarding.repository';
 
 export interface GenerateOnboardingInput {
   userId: number;
@@ -48,11 +48,11 @@ export class OnboardingService {
     const [user, job] = await Promise.all([
       userRepo.findOne({
         where: { id: userId },
-        relations: ["skills"],
+        relations: ['skills'],
       }),
       jobRepo.findOne({
         where: { id: jobId },
-        relations: ["skills", "project"],
+        relations: ['skills', 'project'],
       }),
     ]);
 

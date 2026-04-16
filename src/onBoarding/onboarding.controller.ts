@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
-import { OnboardingService } from "./onboarding.service";
+import { NextFunction, Request, Response } from 'express';
+import { OnboardingService } from './onboarding.service';
 
 export class OnboardingController {
   private onboardingService: OnboardingService;
@@ -14,22 +14,23 @@ export class OnboardingController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      console.log('Received generateOnboarding request with body:', req.body);
       const { userId, jobId, documents } = req.body;
 
       if (!userId || !jobId) {
-        res.status(400).json({ error: "userId and jobId are required" });
+        res.status(400).json({ error: 'userId and jobId are required' });
         return;
       }
 
-      if (typeof userId !== "number" || typeof jobId !== "number") {
-        res.status(400).json({ error: "userId and jobId must be numbers" });
+      if (typeof userId !== 'number' || typeof jobId !== 'number') {
+        res.status(400).json({ error: 'userId and jobId must be numbers' });
         return;
       }
 
       if (documents !== undefined && !Array.isArray(documents)) {
         res
           .status(400)
-          .json({ error: "documents must be an array of strings" });
+          .json({ error: 'documents must be an array of strings' });
         return;
       }
 
@@ -57,7 +58,7 @@ export class OnboardingController {
       if (isNaN(userId) || isNaN(jobId)) {
         res
           .status(400)
-          .json({ error: "userId and jobId must be valid numbers" });
+          .json({ error: 'userId and jobId must be valid numbers' });
         return;
       }
 
@@ -67,7 +68,7 @@ export class OnboardingController {
       );
 
       if (!onboarding) {
-        res.status(404).json({ error: "Onboarding not found" });
+        res.status(404).json({ error: 'Onboarding not found' });
         return;
       }
 

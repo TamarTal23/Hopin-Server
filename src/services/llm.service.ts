@@ -1,12 +1,13 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { isTaskArray } from '../utils/typeguards/isTask';
 import { Task } from '../task/task.entity';
+import { log } from 'console';
 
-interface GeminiResponse {
+type GeminiResponse = {
   tasks: Task[];
-}
+};
 
-const MODEL_NAME = 'gemini-1.5-flash';
+const MODEL_NAME = 'gemini-3-flash-preview';
 
 export class LLMService {
   private genAI: GoogleGenerativeAI;
@@ -30,12 +31,14 @@ export class LLMService {
     const result = await model.generateContent(prompt);
     const text = result.response.text();
 
-    const parsed: GeminiResponse = JSON.parse(text);
+    const tasksList: GeminiResponse = JSON.parse(text);
 
-    if (!isTaskArray(parsed.tasks)) {
-      throw new Error('Unexpected response structure from Gemini: wrong task array');
+    if (!isTaskArray(tasksList)) {
+      throw new Error(
+        'Unexpected response structure from Gemini: wrong task array'
+      );
     }
 
-    return parsed.tasks;
+    return tasksList;
   }
 }

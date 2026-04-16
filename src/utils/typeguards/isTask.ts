@@ -1,4 +1,4 @@
-import { Task } from "../../database/entities/task.entity";
+import { Task } from '../../task/task.entity';
 
 const isTaskObject = (value: unknown): value is Task => {
   if (typeof value !== 'object' || value === null) {
@@ -7,15 +7,19 @@ const isTaskObject = (value: unknown): value is Task => {
 
   const task = value as Record<string, unknown>;
 
+  console.log(task);
+
   return (
-    typeof task.id === 'number' &&
+    typeof task.onboardingId === 'number' &&
     typeof task.order === 'number' &&
     typeof task.title === 'string' &&
     typeof task.description === 'string' &&
     typeof task.estimatedDays === 'number' &&
     typeof task.isCompleted === 'boolean' &&
     (task.onboarding === undefined || typeof task.onboarding === 'object') &&
-    (task.parent === undefined || typeof task.parent === 'object' || task.parent === null) &&
+    (task.parent === undefined ||
+      typeof task.parent === 'object' ||
+      task.parent === null) &&
     (task.subtasks === undefined || Array.isArray(task.subtasks))
   );
 };

@@ -104,7 +104,20 @@ Respond ONLY with a valid JSON array of Task entity objects in this exact format
     "isCompleted": false,
     "onboardingId": ${onboardingId},
     "parent": null,
-    "subtasks": []
+    "subtasks": [
+      {
+        "title": "First subtask example",
+        "description": "Detailed description of the first subtask",
+        "estimatedDays": 1,
+        "isCompleted": false
+      },
+      {
+        "title": "Second subtask example",
+        "description": "Detailed description of the second subtask",
+        "estimatedDays": 1,
+        "isCompleted": false
+      }
+    ]
   }
 ]
 `.trim();

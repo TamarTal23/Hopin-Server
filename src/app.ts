@@ -14,8 +14,11 @@ app.use((_req: Request, res: Response) => {
 });
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Internal server error' });
+  console.error(err);
+  res.status(500).json({
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
+  });
 });
 
 export default app;
