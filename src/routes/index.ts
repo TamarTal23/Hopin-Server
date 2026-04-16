@@ -4,6 +4,7 @@ import authRoutes from '../auth/auth.routes';
 import userRoutes from '../user/user.routes';
 import jobRoutes from '../job/job.routes';
 import projectRoutes from '../project/project.routes';
+import onboardingRoutes from '../onboarding/onboarding.routes';
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.use('/', authRoutes);
 router.use('/', userRoutes);
 router.use('/', jobRoutes);
 router.use('/', projectRoutes);
+router.use('/onboarding', onboardingRoutes);
 
 router.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'Welcome to Hopin API' });
