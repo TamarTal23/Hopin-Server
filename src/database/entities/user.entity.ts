@@ -1,5 +1,6 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Skill } from './skill.entity';
+import { ProjectMember } from './projectMember.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -31,4 +32,7 @@ export class User {
 
   @ManyToMany(() => Skill, (skill) => skill.users)
   skills!: Skill[];
+
+  @OneToMany(() => ProjectMember, (membership) => membership.user)
+  projectMemberships!: ProjectMember[];
 }
