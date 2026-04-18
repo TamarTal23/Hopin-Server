@@ -12,6 +12,7 @@ export class ProjectRepository {
   async findAll(): Promise<Project[]> {
     return this.repository.find({
       relations: ["jobs"],
+      order: { id: "DESC" }
     });
   }
 
@@ -24,6 +25,7 @@ export class ProjectRepository {
 
   async create(projectData: Partial<Project>): Promise<Project> {
     const project = this.repository.create(projectData);
+
     return this.repository.save(project);
   }
 }

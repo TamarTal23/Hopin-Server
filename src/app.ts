@@ -1,10 +1,12 @@
 import 'reflect-metadata';
+import cors from 'cors';
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import indexRouter from './routes/index';
 
 const app: Application = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
