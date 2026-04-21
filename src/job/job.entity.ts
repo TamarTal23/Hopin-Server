@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 import { Project } from "./../project/project.entity";
 import { Skill } from "../database/entities/skill.entity";
-import { ProjectMember } from "../database/entities/projectMember.entity";
+import { ProjectMember } from "../projectMember/projectMember.entity";
 
 @Entity({ name: "jobs" })
 export class Job {

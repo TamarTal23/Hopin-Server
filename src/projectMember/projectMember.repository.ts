@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../database/data-source";
-import { ProjectMember } from "../database/entities/projectMember.entity";
+import { ProjectMember } from "./projectMember.entity";
 
 export class ProjectMemberRepository {
     private repository: Repository<ProjectMember>;

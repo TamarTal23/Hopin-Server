@@ -1,7 +1,8 @@
 import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "./user.entity";
-import { Project } from "../../project/project.entity";
-import { Job } from "../../job/job.entity";
+import { User } from "../database/entities/user.entity";
+import { Project } from "../project/project.entity";
+import { Job } from "../job/job.entity";
+
 
 export enum ProjectRole {
     TRAINEE = "trainee",
