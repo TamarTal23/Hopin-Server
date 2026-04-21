@@ -20,6 +20,9 @@ export class ProjectRepository {
     return this.repository.findOne({
       where: { id },
       relations: { jobs: true, members: { user: true, jobs: true } },
+      order: {
+        members: { id: "DESC" }
+      }
     });
   }
 
