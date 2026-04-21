@@ -61,4 +61,16 @@ export class ProjectController {
       res.status(500).json({ message: 'Error updating member role' });
     }
   };
+
+  removeMember = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const projectId = parseInt(req.params.projectId as string);
+      const memberId = parseInt(req.params.memberId as string);
+
+      await this.projectService.removeMember(projectId, memberId);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: 'Error removing member from project' });
+    }
+  };
 }

@@ -3,8 +3,8 @@ import { ProjectRepository } from "./project.repository";
 import { JobRepository } from "../job/job.repository";
 import { SkillRepository } from "../skill/skill.repository"; // Adjust path as needed
 import { Skill } from "../database/entities/skill.entity";
-import { AppDataSource } from "../database/data-source";
 import { ProjectMember, ProjectRole } from "../database/entities/projectMember.entity";
+import { ProjectMemberRepository } from "./projectMember.repository";
 
 interface CreateProjectPayload {
   name: string;
@@ -17,11 +17,13 @@ export class ProjectService {
   private projectRepository: ProjectRepository;
   private jobRepository: JobRepository;
   private skillRepository: SkillRepository;
+  private projectMemberRepository: ProjectMemberRepository;
 
   constructor() {
     this.projectRepository = new ProjectRepository();
     this.jobRepository = new JobRepository();
     this.skillRepository = new SkillRepository();
+    this.projectMemberRepository = new ProjectMemberRepository();
   }
 
   async getAllProjects(): Promise<Project[]> {
@@ -72,12 +74,10 @@ export class ProjectService {
   }
 
   async updateMemberRole(projectId: number, memberId: number, role: ProjectRole): Promise<ProjectMember> {
-    const projectMemberRepository = AppDataSource.getRepository(ProjectMember);
-
-    const member = await projectMemberRepository.findOne({
-      where: { id: memberId, project: { id: projectId } },
-      relations: ["project"],
-    });
+    const member = await this.projectMemberRepository.findByProjectAndId(
+      projectId,
+      memberId
+    );
 
     if (!member) {
       throw new Error("Project member not found");
@@ -85,6 +85,14 @@ export class ProjectService {
 
     member.role = role;
 
-    return projectMemberRepository.save(member);
+    return this.projectMemberRepository.save(member);
+  }
+
+  async removeMember(projectId: number, memberId: number): Promise<void> {
+    const deleted = await this.projectMemberRepository.delete(projectId, memberId);
+
+    if (!deleted) {
+      throw new Error("Project member not found");
+    }
   }
 }

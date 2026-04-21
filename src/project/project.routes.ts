@@ -17,5 +17,6 @@ router.get('/', projectController.getAllProjects);
 router.get('/:id', projectController.getProjectById);
 router.post('/', projectController.createProject);
 router.patch('/:projectId/members/:memberId/role', projectController.updateMemberRole);
+router.delete('/:projectId/members/:memberId', projectController.removeMember);
 
 export default router;
