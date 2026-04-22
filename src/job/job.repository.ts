@@ -14,13 +14,9 @@ export class JobRepository {
 
   async findAll(): Promise<Job[]> {
     return this.jobRepository.find({
-      relations: [
-        "skills",
-        "project",
-        "assignedMembers",
-        "assignedMembers.user",
-        "assignedMembers.project",
-      ],
+      relations: {
+        skills: true, project: true, members: { user: true, job: true },
+      },
       order: { id: "DESC" },
     });
   }
@@ -28,13 +24,7 @@ export class JobRepository {
   async findById(id: number): Promise<Job | null> {
     return this.jobRepository.findOne({
       where: { id },
-      relations: [
-        "skills",
-        "project",
-        "assignedMembers",
-        "assignedMembers.user",
-        "assignedMembers.project",
-      ],
+      relations: { skills: true, project: true, members: { user: true, job: true } }
     });
   }
 
@@ -50,7 +40,7 @@ export class JobRepository {
   ): Promise<Job | null> {
     const job = await this.jobRepository.findOne({
       where: { id: jobId },
-      relations: ["skills"],
+      relations: { skills: true },
     });
 
     if (!job) return null;

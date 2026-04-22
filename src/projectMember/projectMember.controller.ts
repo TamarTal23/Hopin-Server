@@ -24,10 +24,9 @@ export class ProjectMemberController {
 
     removeMember = async (req: Request, res: Response): Promise<void> => {
         try {
-            const projectId = parseInt(req.params.projectId as string);
             const memberId = parseInt(req.params.memberId as string);
 
-            await this.projectMemberService.removeMember(projectId, memberId);
+            await this.projectMemberService.removeMember(memberId);
             res.status(204).send();
         } catch (error) {
             res.status(500).json({ message: 'Error removing member from project' });

@@ -12,7 +12,7 @@ export class ProjectMemberRepository {
     async findByProjectAndId(projectId: number, memberId: number): Promise<ProjectMember | null> {
         return this.repository.findOne({
             where: { id: memberId, project: { id: projectId } },
-            relations: ["project"],
+            relations: { project: true },
         });
     }
 
@@ -20,11 +20,9 @@ export class ProjectMemberRepository {
         return this.repository.save(member);
     }
 
-    async delete(projectId: number, memberId: number): Promise<boolean> {
-        const result = await this.repository.delete({
-            id: memberId,
-            project: { id: projectId },
-        });
+    async delete(memberId: number) {
+        const result = await this.repository.delete({ id: memberId });
+
         return result.affected !== 0;
     }
 }

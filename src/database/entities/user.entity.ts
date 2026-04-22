@@ -10,8 +10,8 @@ export class User {
   @Column({ type: 'text', name: 'name' })
   name!: string;
 
-  @Column({ type: 'text', name: 'email', nullable: true, unique: true })
-  email!: string | null;
+  @Column({ type: 'text', name: 'email', unique: true })
+  email!: string;
 
   @Column({ type: 'text', name: 'password_hash', nullable: true, select: false })
   passwordHash!: string | null;

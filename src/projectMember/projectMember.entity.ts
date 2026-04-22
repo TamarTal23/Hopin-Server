@@ -30,6 +30,9 @@ export class ProjectMember {
     })
     role!: ProjectRole;
 
-    @ManyToMany(() => Job, (job) => job.assignedMembers)
-    jobs!: Job[];
+    @ManyToOne(() => Job, (job) => job.members, {
+        nullable: false,
+        onDelete: "RESTRICT",
+    })
+    job!: Job;
 }

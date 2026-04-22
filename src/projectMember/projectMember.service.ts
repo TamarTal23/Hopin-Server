@@ -22,8 +22,10 @@ export class ProjectMemberService {
         return this.projectMemberRepository.save(member);
     }
 
-    async removeMember(projectId: number, memberId: number): Promise<void> {
-        const deleted = await this.projectMemberRepository.delete(projectId, memberId);
+    async removeMember(memberId: number): Promise<void> {
+        const deleted = await this.projectMemberRepository.delete(memberId);
+
+
         if (!deleted) {
             throw new Error("Project member not found");
         }
