@@ -58,4 +58,8 @@ export class JobRepository {
 
     return this.jobRepository.save(job);
   }
+
+  async save(job: Job): Promise<Job> {
+    return this.jobRepository.save(job);
+  }
 }
