@@ -1,6 +1,7 @@
 import { Project } from "./project.entity";
 import { ProjectRepository } from "./project.repository";
 import { JobRepository } from "../job/job.repository";
+import { Job } from "../job/job.entity";
 import { SkillRepository } from "../skill/skill.repository"; // Adjust path as needed
 import { Skill } from "../skill/skill.entity";
 
@@ -32,6 +33,7 @@ export class ProjectService {
 
   async upsertProject(payload: UpsertProjectPayload, id?: number): Promise<Project> {
     let project: Project;
+    let existingJobs: Job[] = [];
 
     if (id) {
       const existing = await this.projectRepository.findById(id);
@@ -41,6 +43,7 @@ export class ProjectService {
         name: payload.name,
         description: payload.description ?? existing.description,
       });
+      existingJobs = await this.jobRepository.findByProjectId(id);
     } else {
       project = await this.projectRepository.create({
         name: payload.name,
@@ -59,18 +62,17 @@ export class ProjectService {
           }
         }
 
-        if (jobData.id) {
-          const existingJob = await this.jobRepository.findById(jobData.id);
-          if (existingJob) {
-            existingJob.title = jobData.title;
-            existingJob.skills = processedSkills;
-            await this.jobRepository.save(existingJob);
-          }
+        // resolve which job to update: prefer explicit id, then title match
+        const jobToUpdate = jobData.id
+          ? existingJobs.find(j => j.id === jobData.id)
+          : existingJobs.find(j => j.title === jobData.title);
+
+        if (jobToUpdate) {
+          jobToUpdate.title = jobData.title;
+          jobToUpdate.skills = processedSkills;
+          await this.jobRepository.save(jobToUpdate);
         } else {
-          const job = await this.jobRepository.create({
-            title: jobData.title,
-            project,
-          });
+          const job = await this.jobRepository.create({ title: jobData.title, project });
           job.skills = processedSkills;
           await this.jobRepository.save(job);
         }
