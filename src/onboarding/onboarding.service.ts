@@ -14,6 +14,8 @@ export interface GenerateOnboardingInput {
   daysDuration: number;
 }
 
+export type OnboardingWithProgress = OnBoarding & { progress: number };
+
 export class OnboardingService {
   private llmService: LLMService;
   private taskService: TaskService;
@@ -25,21 +27,41 @@ export class OnboardingService {
     this.onboardingRepository = new OnboardingRepository();
   }
 
-  async getOnBoardingById(id: number): Promise<OnBoarding | null> {
-    return this.onboardingRepository.getOnboarding(id);
+  private calculateProgress(onboarding: OnBoarding): number {
+    const tasks = onboarding.tasks ?? [];
+    const totalDays = tasks.reduce((sum, t) => sum + t.estimatedDays, 0);
+    const completedDays = tasks
+      .filter((t) => t.isCompleted)
+      .reduce((sum, t) => sum + t.estimatedDays, 0);
+    return totalDays > 0 ? (completedDays / totalDays) * 100 : 0;
+  }
+
+  private withProgress(onboarding: OnBoarding): OnboardingWithProgress {
+    return { ...onboarding, progress: this.calculateProgress(onboarding) };
+  }
+
+  async getOnBoardingById(id: number): Promise<OnboardingWithProgress | null> {
+    const onboarding = await this.onboardingRepository.getOnboarding(id);
+    return onboarding ? this.withProgress(onboarding) : null;
+  }
+
+  async getOnboardingsByProject(projectId: number): Promise<OnboardingWithProgress[]> {
+    const onboardings = await this.onboardingRepository.getOnboardingsByProjectId(projectId);
+    return onboardings.map((o) => this.withProgress(o));
   }
 
   async getOnboarding(
     userId: number,
-    jobId: number
-  ): Promise<OnBoarding | null> {
-    return this.onboardingRepository.getOnboardingByUserIdAndJobId(
+    jobId: number,
+  ): Promise<OnboardingWithProgress | null> {
+    const onboarding = await this.onboardingRepository.getOnboardingByUserIdAndJobId(
       userId,
       jobId
     );
+    return onboarding ? this.withProgress(onboarding) : null;
   }
 
-  async generateBoard(input: GenerateOnboardingInput): Promise<OnBoarding> {
+  async generateBoard(input: GenerateOnboardingInput): Promise<OnboardingWithProgress> {
     const { userId, jobId, documents = [], daysDuration } = input;
     console.log(`[Onboarding] Starting generation for userId=${userId}, jobId=${jobId}, daysDuration=${daysDuration}, documents=${documents.length}`);
 

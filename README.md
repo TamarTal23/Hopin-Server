@@ -137,24 +137,46 @@ The API runs on `http://localhost:3000` by default.
     {
       "userId": 1,
       "jobId": 1,
+      "daysDuration": 30,
       "documents": ["Optional document text to customize onboarding"]
     }
     ```
+  - `userId`, `jobId`, and `daysDuration` are required. `documents` is optional.
   - Response:
     ```json
     {
       "onBoarding": {
         "id": 1,
-        "userId": 1,
-        "jobId": 1,
-        "projectId": 1,
+        "user": { ... },
+        "job": { ... },
+        "project": { ... },
         "tasks": [ ... ]
       }
     }
     ```
 
-- `GET /onboarding/user/:userId/job/:jobId`
-  - Response: onboarding plan for that user/job combination.
+- `GET /onboarding/user/:userId/job/:jobId/project/:projectId`
+  - Response: onboarding plan for that user/job/project combination, including a calculated `progress` field (0–100) representing completed task days out of total task days.
+    ```json
+    {
+      "onboarding": { ... },
+      "progress": 42.5
+    }
+    ```
+
+- `GET /onboarding/project/:projectId`
+  - Response: all onboarding plans belonging to the given project.
+    ```json
+    [
+      {
+        "id": 1,
+        "user": { ... },
+        "job": { ... },
+        "project": { ... },
+        "tasks": [ ... ]
+      }
+    ]
+    ```
 
 ### Client integration examples
 
@@ -184,6 +206,7 @@ const response = await fetch('http://localhost:3000/onboarding/generate', {
   body: JSON.stringify({
     userId: 1,
     jobId: 2,
+    daysDuration: 30,
     documents: ['Project onboarding guide...', 'Team procedures...'],
   }),
 });
