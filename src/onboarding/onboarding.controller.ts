@@ -14,7 +14,7 @@ export class OnboardingController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { userId, jobId, documents } = req.body;
+      const { userId, jobId, documents, daysDuration } = req.body;
 
       if (!userId || !jobId) {
         res.status(400).json({ error: 'userId and jobId are required' });
@@ -23,6 +23,16 @@ export class OnboardingController {
 
       if (typeof userId !== 'number' || typeof jobId !== 'number') {
         res.status(400).json({ error: 'userId and jobId must be numbers' });
+        return;
+      }
+
+      if (daysDuration === undefined || daysDuration === null) {
+        res.status(400).json({ error: 'daysDuration is required' });
+        return;
+      }
+
+      if (typeof daysDuration !== 'number' || !Number.isInteger(daysDuration) || daysDuration < 1) {
+        res.status(400).json({ error: 'daysDuration must be a positive integer' });
         return;
       }
 
@@ -37,6 +47,7 @@ export class OnboardingController {
         userId,
         jobId,
         documents,
+        daysDuration,
       });
 
       res.status(200).json({ onBoarding });

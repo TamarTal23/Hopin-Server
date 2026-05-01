@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, RelationId, UpdateDateColumn } from 'typeorm';
-import { OnBoarding } from '../onBoarding/onBoarding.entity';
+import { OnBoarding } from '../onboarding/onBoarding.entity';
 
 @Entity({ name: 'task' })
 export class Task {

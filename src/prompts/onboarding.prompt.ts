@@ -19,6 +19,7 @@ export interface OnboardingPromptInput {
   projectName: string;
   projectDescription: string | null;
   documents: string[];
+  daysDuration: number;
 }
 
 export function buildOnboardingPrompt(input: OnboardingPromptInput): string {
@@ -32,6 +33,7 @@ export function buildOnboardingPrompt(input: OnboardingPromptInput): string {
     projectName,
     projectDescription,
     documents,
+    daysDuration,
   } = input;
 
   const experienceLabel =
@@ -83,6 +85,9 @@ The following documents contain important context about the company, the project
 
 ${documentSection}
 
+## Onboarding Duration
+- Total available days: ${daysDuration}
+
 ## Instructions
 Generate a sequenced onboarding task board tailored to this specific employee and role.
 
@@ -91,8 +96,9 @@ Rules:
 - Tailor the depth of tasks to the employee's experience level — more experienced employees need fewer basic tasks
 - Focus on skill gaps: if the employee lacks a required skill, include tasks to address it
 - Each task must be concrete and actionable, not vague
-- Aim for 6 to 12 tasks total
-- estimatedDays should reflect realistic effort (1–5 days per task)
+- The sum of all top-level task estimatedDays MUST equal exactly ${daysDuration} days — distribute the full duration across the tasks
+- Aim for 6 to 12 tasks total; adjust estimatedDays per task so they add up to ${daysDuration}
+- No single task should exceed half the total duration (${Math.ceil(daysDuration / 2)} days)
 
 Respond ONLY with a valid JSON array of Task entity objects in this exact format, no explanation or markdown:
 [
