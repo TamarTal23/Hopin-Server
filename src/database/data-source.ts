@@ -7,7 +7,7 @@ import { Job } from '../job/job.entity';
 import { Project } from '../project/project.entity';
 import { ProjectMember } from '../projectMember/projectMember.entity';
 import { Skill } from '../skill/skill.entity';
-import { OnBoarding } from '../onBoarding/onBoarding.entity';
+import { OnBoarding } from '../onboarding/onBoarding.entity';
 import { Task } from '../task/task.entity';
 
 dotenv.config();

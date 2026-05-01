@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import cors from 'cors';
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
+import { QueryFailedError } from 'typeorm';
 import indexRouter from './routes/index';
 
 const app: Application = express();
@@ -19,6 +20,12 @@ app.use((_req: Request, res: Response) => {
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);
+
+  if (err instanceof QueryFailedError) {
+    res.status(422).json({ error: `Database error: ${err.message}` });
+    return;
+  }
+
   res.status(500).json({
     message: 'Internal server error',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined,

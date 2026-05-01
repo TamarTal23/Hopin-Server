@@ -30,6 +30,10 @@ export class OnBoarding {
   @RelationId((onboarding: OnBoarding) => onboarding.job)
   jobId!: number;
 
+    // TODO: remove the project relation from OnBoarding entirely — project is already
+  // reachable via job (onboarding → job → project), so storing it here is redundant
+  // and risks getting out of sync. Queries that filter or join by project should go
+  // through the job relation instead.
   @ManyToOne(() => Project, { nullable: false, onDelete: "CASCADE" })
   @JoinColumn({ name: "project_id" })
   project!: Project;

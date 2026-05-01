@@ -13,7 +13,7 @@ export class AddAuthColumnsToUsers1775100000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX "UQ_users_email"`);
+    await queryRunner.query(`DROP INDEX IF EXISTS "UQ_users_email"`);
 
     await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "refresh_token_expires_at"`);
     await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "refresh_token_hash"`);

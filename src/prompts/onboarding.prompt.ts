@@ -19,6 +19,7 @@ export interface OnboardingPromptInput {
   projectName: string;
   projectDescription: string | null;
   documents: string[];
+  daysDuration: number;
 }
 
 export function buildOnboardingPrompt(input: OnboardingPromptInput): string {
@@ -32,6 +33,7 @@ export function buildOnboardingPrompt(input: OnboardingPromptInput): string {
     projectName,
     projectDescription,
     documents,
+    daysDuration,
   } = input;
 
   const experienceLabel =
@@ -53,8 +55,8 @@ export function buildOnboardingPrompt(input: OnboardingPromptInput): string {
   const documentSection =
     documents.length > 0
       ? documents
-          .map((doc, i) => `--- Document ${i + 1} ---\n${doc}`)
-          .join('\n\n')
+        .map((doc, i) => `--- Document ${i + 1} ---\n${doc}`)
+        .join('\n\n')
       : `--- Default Company Guidelines ---\n${DEFAULT_COMPANY_DOCUMENT}`;
 
   return `
@@ -83,6 +85,9 @@ The following documents contain important context about the company, the project
 
 ${documentSection}
 
+## Onboarding Duration
+- Total available days: ${daysDuration}
+
 ## Instructions
 Generate a sequenced onboarding task board tailored to this specific employee and role.
 
@@ -91,8 +96,10 @@ Rules:
 - Tailor the depth of tasks to the employee's experience level — more experienced employees need fewer basic tasks
 - Focus on skill gaps: if the employee lacks a required skill, include tasks to address it
 - Each task must be concrete and actionable, not vague
-- Aim for 6 to 12 tasks total
-- estimatedDays should reflect realistic effort (1–5 days per task)
+- The sum of all top-level task estimatedDays MUST equal exactly ${daysDuration} days — distribute the full duration across the tasks
+- Aim for 6 to 12 tasks total; adjust estimatedDays per task so they add up to ${daysDuration}
+- No single task should exceed half the total duration (${Math.ceil(daysDuration / 2)} days)
+- For each task, include a "links" field: an array of URLs pointing to relevant official documentation (e.g., MDN, official framework docs, GitHub READMEs). Only populate it when the task clearly involves a specific technology that has well-known public docs. If no such documentation applies, set "links" to []. Never invent or guess URLs.
 
 Respond ONLY with a valid JSON array of Task entity objects in this exact format, no explanation or markdown:
 [
@@ -103,19 +110,22 @@ Respond ONLY with a valid JSON array of Task entity objects in this exact format
     "estimatedDays": 1,
     "isCompleted": false,
     "onboardingId": ${onboardingId},
+    "links": ["https://example.com/relevant-official-doc"],
     "parent": null,
     "subtasks": [
       {
         "title": "First subtask example",
         "description": "Detailed description of the first subtask",
         "estimatedDays": 1,
-        "isCompleted": false
+        "isCompleted": false,
+        "links": []
       },
       {
         "title": "Second subtask example",
         "description": "Detailed description of the second subtask",
         "estimatedDays": 1,
-        "isCompleted": false
+        "isCompleted": false,
+        "links": ["https://docs.example.com/guide"]
       }
     ]
   }
