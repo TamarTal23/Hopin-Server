@@ -1,5 +1,5 @@
 import { Task } from './task.entity';
-import { TaskRepository } from './task.repository';
+import { TaskRepository, UpsertTaskInput } from './task.repository';
 
 export class TaskService {
   private taskRepository: TaskRepository;
@@ -14,5 +14,9 @@ export class TaskService {
 
   async completeTask(taskId: number): Promise<Task | null> {
     return this.taskRepository.completeTask(taskId);
+  }
+
+  async upsertTask(data: UpsertTaskInput): Promise<Task | null> {
+    return this.taskRepository.upsertTask(data);
   }
 }

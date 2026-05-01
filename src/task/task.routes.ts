@@ -3,6 +3,7 @@ import { taskController } from './task.controller';
 
 const router = Router();
 
+router.put('/', taskController.upsertTask);
 router.patch('/:taskId/complete', taskController.completeTask);
 
 export default router;

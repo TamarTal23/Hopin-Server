@@ -33,6 +33,37 @@ export class TaskController {
       next(error);
     }
   };
+
+  upsertTask = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { id, order, title, description, estimatedDays, isCompleted, links, onboardingId, parentId } = req.body;
+
+      if (id === undefined) {
+        if (typeof order !== 'number' || typeof title !== 'string' || typeof description !== 'string' || typeof estimatedDays !== 'number') {
+          res.status(400).json({ error: 'order (number), title (string), description (string), and estimatedDays (number) are required when creating a task' });
+          return;
+        }
+      } else if (typeof id !== 'number') {
+        res.status(400).json({ error: 'id must be a number' });
+        return;
+      }
+
+      const task = await this.taskService.upsertTask({ id, order, title, description, estimatedDays, isCompleted, links, onboardingId, parentId });
+
+      if (task === null) {
+        res.status(404).json({ error: 'Task not found' });
+        return;
+      }
+
+      res.status(id === undefined ? 201 : 200).json({ task });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export const taskController = new TaskController();

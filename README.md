@@ -131,6 +131,30 @@ The API runs on `http://localhost:3000` by default.
 
 ### Tasks
 
+- `PUT /tasks`
+  - Creates or updates a task.
+  - To **create**: omit `id`; `order`, `title`, `description`, and `estimatedDays` are required.
+  - To **update**: include `id`; all other fields are optional (only provided fields are updated).
+  - Body:
+    ```json
+    {
+      "id": 1,
+      "order": 1,
+      "title": "...",
+      "description": "...",
+      "estimatedDays": 3,
+      "isCompleted": false,
+      "links": ["https://example.com/doc"],
+      "onboardingId": 1,
+      "parentId": null
+    }
+    ```
+  - Response `201` (create) / `200` (update):
+    ```json
+    { "task": { "id": 1, "order": 1, "title": "...", "description": "...", "estimatedDays": 3, "isCompleted": false, "links": [] } }
+    ```
+  - Response `404`: task with given `id` not found.
+
 - `PATCH /tasks/:taskId/complete`
   - Marks the task as completed (`isCompleted: true`).
   - Response:
