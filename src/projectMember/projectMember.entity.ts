@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import { User } from "../database/entities/user.entity";
 import { Project } from "../project/project.entity";
 import { Job } from "../job/job.entity";
