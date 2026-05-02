@@ -20,12 +20,10 @@ export type OnboardingWithProgress = OnBoarding & { progress: number };
 
 export class OnboardingService {
   private llmService: LLMService;
-  private taskService: TaskService;
   private onboardingRepository: OnboardingRepository;
 
   constructor() {
     this.llmService = new LLMService();
-    this.taskService = new TaskService();
     this.onboardingRepository = new OnboardingRepository();
   }
 
@@ -98,15 +96,7 @@ export class OnboardingService {
 
     console.log(`[Onboarding] Resolved user="${user.name}", job="${job.title}", project="${job.project.name}"`);
 
-    const onboarding = await this.onboardingRepository.createOnboarding({
-      userId: user.id,
-      jobId: job.id,
-      projectId: job.project.id,
-    });
-    console.log(`[Onboarding] Created onboarding record id=${onboarding.id}`);
-
     const prompt = buildOnboardingPrompt({
-      onboardingId: onboarding.id,
       userName: user.name,
       userExperienceYears: user.experienceYears,
       userSkills: user.skills.map(s => s.name),
@@ -118,7 +108,7 @@ export class OnboardingService {
       daysDuration,
     });
 
-    console.log(`[Onboarding] Sending prompt to LLM for onboarding id=${onboarding.id}`);
+    console.log(`[Onboarding] Sending prompt to LLM for userId=${userId}, jobId=${jobId}`);
     const tasks = await this.llmService.generateOnboardingTasks(prompt);
     console.log(`[Onboarding] LLM returned ${tasks.length} tasks for onboarding id=${onboarding.id}`);
 
@@ -152,16 +142,17 @@ export class OnboardingService {
       console.log(`[Onboarding] Saved ${subtaskData.length} subtasks for onboarding id=${onboarding.id}`);
     }
 
-    const fullOnboarding = await this.getOnBoardingById(onboarding.id);
+      return savedOnboarding.id;
+    });
+
+    const fullOnboarding = await this.getOnBoardingById(savedOnboardingId);
 
     if (!fullOnboarding) {
-      console.error(`[Onboarding] Could not retrieve onboarding after save: id=${onboarding.id}`);
-      throw new Error(
-        `Onboarding with id ${onboarding.id} could not be retrieved after save`
-      );
+      console.error(`[Onboarding] Could not retrieve onboarding after save: id=${savedOnboardingId}`);
+      throw new Error(`Onboarding with id ${savedOnboardingId} could not be retrieved after save`);
     }
 
-    console.log(`[Onboarding] Generation complete for onboarding id=${onboarding.id}`);
+    console.log(`[Onboarding] Generation complete for onboarding id=${savedOnboardingId}`);
     return fullOnboarding;
   }
 }

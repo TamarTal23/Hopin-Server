@@ -2,6 +2,16 @@ import { DeepPartial, Repository } from 'typeorm';
 import { AppDataSource } from '../database/data-source';
 import { Task } from './task.entity';
 
+export interface SubtaskInput {
+  id?: number;
+  order?: number;
+  title?: string;
+  description?: string;
+  estimatedDays?: number;
+  isCompleted?: boolean;
+  links?: string[];
+}
+
 export interface UpsertTaskInput {
   id?: number;
   order?: number;
@@ -12,6 +22,7 @@ export interface UpsertTaskInput {
   links?: string[];
   onboardingId?: number;
   parentId?: number | null;
+  subtasks?: SubtaskInput[];
 }
 
 export class TaskRepository {
@@ -37,17 +48,41 @@ export class TaskRepository {
   }
 
   async upsertTask(data: UpsertTaskInput): Promise<Task | null> {
-    const { id, onboardingId, parentId, ...rest } = data;
+    return AppDataSource.transaction(async (manager) => {
+      const { id, onboardingId, parentId, subtasks, ...rest } = data;
+      const taskRepo = manager.getRepository(Task);
 
-    const entityData: DeepPartial<Task> = { ...rest };
-    if (onboardingId !== undefined) entityData.onboarding = { id: onboardingId };
-    if (parentId !== undefined) entityData.parent = parentId != null ? { id: parentId } : undefined;
+      const entityData: DeepPartial<Task> = { ...rest };
+      if (onboardingId !== undefined) entityData.onboarding = { id: onboardingId };
+      if (parentId !== undefined) entityData.parent = parentId != null ? { id: parentId } : undefined;
+
+      let taskId: number;
+      if (id !== undefined) {
+        await taskRepo.update(id, entityData);
+        const exists = await taskRepo.findOneBy({ id });
+        if (!exists) return null;
+        taskId = id;
+      } else {
+        const created = await taskRepo.save(taskRepo.create(entityData));
+        taskId = created.id;
+      }
+
+      if (subtasks !== undefined) {
+        const existing = await taskRepo.find({ where: { parent: { id: taskId } }, select: ['id'] });
+        const existingIds = existing.map(s => s.id);
+        const incomingIds = new Set(subtasks.filter(s => s.id !== undefined).map(s => s.id!));
+
+        const toDelete = existingIds.filter(sid => !incomingIds.has(sid));
+        if (toDelete.length > 0) {
+          await taskRepo.delete(toDelete);
+        }
 
     if (id !== undefined) {
       await this.taskRepository.update(id, entityData);
       return this.taskRepository.findOne({ where: { id }, relations: { subtasks: true } });
     }
 
-    return this.taskRepository.save(this.taskRepository.create(entityData));
+      return taskRepo.findOne({ where: { id: taskId }, relations: { subtasks: true } });
+    });
   }
 }

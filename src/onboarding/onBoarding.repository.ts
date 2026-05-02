@@ -40,6 +40,10 @@ export class OnboardingRepository {
   // reachable via job (onboarding → job → project), so storing it here is redundant
   // and risks getting out of sync. Queries that filter or join by project should go
   // through the job relation instead.
+  async deleteOnboarding(id: number): Promise<void> {
+    await this.onboardingRepository.delete(id);
+  }
+
   async createOnboarding(data: Partial<OnBoarding>): Promise<OnBoarding> {
     const onboarding = this.onboardingRepository.create({
       job: { id: data.jobId },

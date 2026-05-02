@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, RelationId, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { OnBoarding } from '../onboarding/onBoarding.entity';
 
 @Entity({ name: 'task' })
@@ -29,6 +29,7 @@ export class Task {
   links!: string[];
 
   @ManyToOne(() => Task, (task) => task.subtasks, { nullable: true })
+  @JoinColumn({ name: 'parent_id' })
   parent?: Task;
 
   @OneToMany(() => Task, (task) => task.parent)
