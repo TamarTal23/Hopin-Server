@@ -3,7 +3,7 @@ import { User } from '../database/entities/user.entity';
 import { Job } from '../job/job.entity';
 import { buildOnboardingPrompt } from '../prompts/onboarding.prompt';
 import { LLMService } from '../services/llm.service';
-import { TaskService } from '../task/task.service';
+import { Task } from '../task/task.entity';
 import { OnBoarding } from './onBoarding.entity';
 import { OnboardingRepository } from './onBoarding.repository';
 
@@ -18,12 +18,10 @@ export type OnboardingWithProgress = OnBoarding & { progress: number };
 
 export class OnboardingService {
   private llmService: LLMService;
-  private taskService: TaskService;
   private onboardingRepository: OnboardingRepository;
 
   constructor() {
     this.llmService = new LLMService();
-    this.taskService = new TaskService();
     this.onboardingRepository = new OnboardingRepository();
   }
 
@@ -96,15 +94,7 @@ export class OnboardingService {
 
     console.log(`[Onboarding] Resolved user="${user.name}", job="${job.title}", project="${job.project.name}"`);
 
-    const onboarding = await this.onboardingRepository.createOnboarding({
-      userId: user.id,
-      jobId: job.id,
-      projectId: job.project.id,
-    });
-    console.log(`[Onboarding] Created onboarding record id=${onboarding.id}`);
-
     const prompt = buildOnboardingPrompt({
-      onboardingId: onboarding.id,
       userName: user.name,
       userExperienceYears: user.experienceYears,
       userSkills: user.skills.map(s => s.name),
@@ -116,28 +106,37 @@ export class OnboardingService {
       daysDuration,
     });
 
-    console.log(`[Onboarding] Sending prompt to LLM for onboarding id=${onboarding.id}`);
+    console.log(`[Onboarding] Sending prompt to LLM for userId=${userId}, jobId=${jobId}`);
     const tasks = await this.llmService.generateOnboardingTasks(prompt);
-    console.log(`[Onboarding] LLM returned ${tasks.length} tasks for onboarding id=${onboarding.id}`);
+    console.log(`[Onboarding] LLM returned ${tasks.length} tasks`);
 
-    await this.taskService.createTasks(
-      tasks.map(task => ({
+    const savedOnboardingId = await AppDataSource.transaction(async (manager) => {
+      const onboarding = manager.create(OnBoarding, {
+        job: { id: job.id },
+        user: { id: user.id },
+        project: { id: job.project!.id },
+      });
+      const savedOnboarding = await manager.save(OnBoarding, onboarding);
+      console.log(`[Onboarding] Created onboarding record id=${savedOnboarding.id}`);
+
+      await manager.save(Task, tasks.map(task => ({
         ...task,
-        onboarding,
-      }))
-    );
-    console.log(`[Onboarding] Saved ${tasks.length} tasks for onboarding id=${onboarding.id}`);
+        id: undefined,
+        onboarding: savedOnboarding,
+      })));
+      console.log(`[Onboarding] Saved ${tasks.length} tasks for onboarding id=${savedOnboarding.id}`);
 
-    const fullOnboarding = await this.getOnBoardingById(onboarding.id);
+      return savedOnboarding.id;
+    });
+
+    const fullOnboarding = await this.getOnBoardingById(savedOnboardingId);
 
     if (!fullOnboarding) {
-      console.error(`[Onboarding] Could not retrieve onboarding after save: id=${onboarding.id}`);
-      throw new Error(
-        `Onboarding with id ${onboarding.id} could not be retrieved after save`
-      );
+      console.error(`[Onboarding] Could not retrieve onboarding after save: id=${savedOnboardingId}`);
+      throw new Error(`Onboarding with id ${savedOnboardingId} could not be retrieved after save`);
     }
 
-    console.log(`[Onboarding] Generation complete for onboarding id=${onboarding.id}`);
+    console.log(`[Onboarding] Generation complete for onboarding id=${savedOnboardingId}`);
     return fullOnboarding;
   }
 }
