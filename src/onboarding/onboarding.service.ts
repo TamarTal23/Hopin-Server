@@ -20,12 +20,10 @@ export type OnboardingWithProgress = OnBoarding & { progress: number };
 
 export class OnboardingService {
   private llmService: LLMService;
-  private taskService: TaskService;
   private onboardingRepository: OnboardingRepository;
 
   constructor() {
     this.llmService = new LLMService();
-    this.taskService = new TaskService();
     this.onboardingRepository = new OnboardingRepository();
   }
 

@@ -26,7 +26,6 @@ const isTaskObject = (value: unknown): value is Task => {
   const task = value as Record<string, unknown>;
 
   return (
-    typeof task.onboardingId === 'number' &&
     typeof task.order === 'number' &&
     typeof task.title === 'string' &&
     typeof task.description === 'string' &&

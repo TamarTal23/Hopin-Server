@@ -10,7 +10,6 @@ Company Onboarding Guidelines:
 `.trim();
 
 export interface OnboardingPromptInput {
-  onboardingId: number;
   userName: string;
   userExperienceYears: number | null;
   userSkills: string[];
@@ -24,7 +23,6 @@ export interface OnboardingPromptInput {
 
 export function buildOnboardingPrompt(input: OnboardingPromptInput): string {
   const {
-    onboardingId,
     userName,
     userExperienceYears,
     userSkills,
@@ -63,9 +61,6 @@ export function buildOnboardingPrompt(input: OnboardingPromptInput): string {
 You are an expert onboarding manager for a software company. Your job is to create a personalized, sequenced onboarding task board for a new employee.
 
 Use all the information provided below to generate a realistic, practical, and tailored onboarding plan. Every task must reference the specific technologies, tools, frameworks, and processes relevant to the job role and project — avoid generic steps that could apply to any company or role.
-
-## Onboarding Record
-- Onboarding ID: ${onboardingId}
 
 ## New Employee Profile
 - Name: ${userName}
@@ -113,7 +108,6 @@ Respond ONLY with a valid JSON array of Task entity objects in this exact format
     "description": "Detailed description of what the employee should do and why it matters for their onboarding.",
     "estimatedDays": 2,
     "isCompleted": false,
-    "onboardingId": ${onboardingId},
     "links": ["https://example.com/relevant-official-doc"],
     "parent": null,
     "subtasks": [
