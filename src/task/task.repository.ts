@@ -21,14 +21,14 @@ export class TaskRepository {
     this.taskRepository = AppDataSource.getRepository(Task);
   }
 
-  async createTasks(data: Partial<Task>[]): Promise<Task[]> {
+  async createTasks(data: DeepPartial<Task>[]): Promise<Task[]> {
     const tasks = this.taskRepository.create(data);
     return this.taskRepository.save(tasks);
   }
 
   async completeTask(taskId: number): Promise<Task | null> {
     await this.taskRepository.update(taskId, { isCompleted: true });
-    return this.taskRepository.findOneBy({ id: taskId });
+    return this.taskRepository.findOne({ where: { id: taskId }, relations: { subtasks: true } });
   }
 
   async deleteTask(taskId: number): Promise<boolean> {
@@ -45,7 +45,7 @@ export class TaskRepository {
 
     if (id !== undefined) {
       await this.taskRepository.update(id, entityData);
-      return this.taskRepository.findOneBy({ id });
+      return this.taskRepository.findOne({ where: { id }, relations: { subtasks: true } });
     }
 
     return this.taskRepository.save(this.taskRepository.create(entityData));

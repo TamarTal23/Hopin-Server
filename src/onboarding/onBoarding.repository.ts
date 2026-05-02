@@ -12,8 +12,8 @@ export class OnboardingRepository {
   async getOnboarding(id: number): Promise<OnBoarding | null> {
     return this.onboardingRepository.findOne({
       where: { id },
-      relations: { user: true, job: true, project: true, tasks: true },
-      order: { tasks: { order: 'ASC' } },
+      relations: { user: true, job: true, project: true, tasks: { subtasks: true } },
+      order: { tasks: { order: 'ASC', subtasks: { order: 'ASC' } } },
     });
   }
 
@@ -23,16 +23,16 @@ export class OnboardingRepository {
   ): Promise<OnBoarding | null> {
     return this.onboardingRepository.findOne({
       where: { user: { id: userId }, job: { id: jobId } },
-      relations: { user: true, job: true, project: true, tasks: true },
-      order: { tasks: { order: 'ASC' } },
+      relations: { user: true, job: true, project: true, tasks: { subtasks: true } },
+      order: { tasks: { order: 'ASC', subtasks: { order: 'ASC' } } },
     });
   }
 
   async getOnboardingsByProjectId(projectId: number): Promise<OnBoarding[]> {
     return this.onboardingRepository.find({
       where: { project: { id: projectId } },
-      relations: { user: true, job: true, project: true, tasks: true },
-      order: { tasks: { order: 'ASC' } },
+      relations: { user: true, job: true, project: true, tasks: { subtasks: true } },
+      order: { tasks: { order: 'ASC', subtasks: { order: 'ASC' } } },
     });
   }
 

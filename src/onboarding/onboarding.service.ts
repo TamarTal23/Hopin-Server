@@ -1,8 +1,10 @@
+import { DeepPartial } from 'typeorm';
 import { AppDataSource } from '../database';
 import { User } from '../database/entities/user.entity';
 import { Job } from '../job/job.entity';
 import { buildOnboardingPrompt } from '../prompts/onboarding.prompt';
 import { LLMService } from '../services/llm.service';
+import { Task } from '../task/task.entity';
 import { TaskService } from '../task/task.service';
 import { OnBoarding } from './onBoarding.entity';
 import { OnboardingRepository } from './onBoarding.repository';
@@ -120,13 +122,35 @@ export class OnboardingService {
     const tasks = await this.llmService.generateOnboardingTasks(prompt);
     console.log(`[Onboarding] LLM returned ${tasks.length} tasks for onboarding id=${onboarding.id}`);
 
-    await this.taskService.createTasks(
+    const savedParents = await this.taskService.createTasks(
       tasks.map(task => ({
         ...task,
+        subtasks: undefined,
         onboarding,
       }))
     );
-    console.log(`[Onboarding] Saved ${tasks.length} tasks for onboarding id=${onboarding.id}`);
+    console.log(`[Onboarding] Saved ${tasks.length} parent tasks for onboarding id=${onboarding.id}`);
+
+    const parentByOrder = new Map(savedParents.map((p) => [p.order, p]));
+
+    const subtaskData: DeepPartial<Task>[] = tasks.flatMap((task) => {
+      const parent = parentByOrder.get(task.order);
+      if (!parent) return [];
+      return (task.subtasks ?? []).map((sub, j) => ({
+        title: sub.title,
+        description: sub.description,
+        estimatedDays: sub.estimatedDays,
+        links: sub.links,
+        isCompleted: false,
+        order: j + 1,
+        parent: { id: parent.id },
+      }));
+    });
+
+    if (subtaskData.length > 0) {
+      await this.taskService.createTasks(subtaskData);
+      console.log(`[Onboarding] Saved ${subtaskData.length} subtasks for onboarding id=${onboarding.id}`);
+    }
 
     const fullOnboarding = await this.getOnBoardingById(onboarding.id);
 
