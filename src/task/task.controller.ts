@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { TaskService } from './task.service';
+import { SubtaskInput } from './task.repository';
 
 export class TaskController {
   private taskService: TaskService;
@@ -66,7 +67,7 @@ export class TaskController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { id, order, title, description, estimatedDays, isCompleted, links, onboardingId, parentId } = req.body;
+      const { id, order, title, description, estimatedDays, isCompleted, links, onboardingId, parentId, subtasks } = req.body;
 
       if (id === undefined) {
         if (typeof order !== 'number' || typeof title !== 'string' || typeof description !== 'string' || typeof estimatedDays !== 'number') {
@@ -78,7 +79,38 @@ export class TaskController {
         return;
       }
 
-      const task = await this.taskService.upsertTask({ id, order, title, description, estimatedDays, isCompleted, links, onboardingId, parentId });
+      if (subtasks !== undefined) {
+        if (!Array.isArray(subtasks)) {
+          res.status(400).json({ error: 'subtasks must be an array' });
+          return;
+        }
+        for (const s of subtasks as SubtaskInput[]) {
+          if (s.id !== undefined && typeof s.id !== 'number') {
+            res.status(400).json({ error: 'subtask id must be a number' });
+            return;
+          }
+          if (s.id === undefined) {
+            if (typeof s.title !== 'string' || typeof s.description !== 'string' || typeof s.estimatedDays !== 'number') {
+              res.status(400).json({ error: 'title (string), description (string), and estimatedDays (number) are required when creating a subtask' });
+              return;
+            }
+          }
+          if (s.title !== undefined && typeof s.title !== 'string') {
+            res.status(400).json({ error: 'subtask title must be a string' });
+            return;
+          }
+          if (s.description !== undefined && typeof s.description !== 'string') {
+            res.status(400).json({ error: 'subtask description must be a string' });
+            return;
+          }
+          if (s.estimatedDays !== undefined && typeof s.estimatedDays !== 'number') {
+            res.status(400).json({ error: 'subtask estimatedDays must be a number' });
+            return;
+          }
+        }
+      }
+
+      const task = await this.taskService.upsertTask({ id, order, title, description, estimatedDays, isCompleted, links, onboardingId, parentId, subtasks });
 
       if (task === null) {
         res.status(404).json({ error: 'Task not found' });
