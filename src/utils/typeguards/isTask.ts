@@ -1,5 +1,23 @@
 import { Task } from '../../task/task.entity';
 
+const isSubtaskObject = (value: unknown): boolean => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const item = value as Record<string, unknown>;
+
+  return (
+    typeof item.title === 'string' &&
+    typeof item.description === 'string' &&
+    (item.isCompleted === undefined || typeof item.isCompleted === 'boolean') &&
+    typeof item.estimatedDays === 'number' &&
+    (item.links === undefined ||
+      (Array.isArray(item.links) &&
+        (item.links as unknown[]).every((l) => typeof l === 'string')))
+  );
+};
+
 const isTaskObject = (value: unknown): value is Task => {
   if (typeof value !== 'object' || value === null) {
     return false;
@@ -17,7 +35,9 @@ const isTaskObject = (value: unknown): value is Task => {
     (task.parent === undefined ||
       typeof task.parent === 'object' ||
       task.parent === null) &&
-    (task.subtasks === undefined || Array.isArray(task.subtasks)) &&
+    (task.subtasks === undefined ||
+      (Array.isArray(task.subtasks) &&
+        (task.subtasks as unknown[]).every(isSubtaskObject))) &&
     (task.links === undefined ||
       task.links === null ||
       (Array.isArray(task.links) &&

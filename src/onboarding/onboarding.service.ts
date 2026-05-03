@@ -1,9 +1,11 @@
+import { DeepPartial } from 'typeorm';
 import { AppDataSource } from '../database';
 import { User } from '../database/entities/user.entity';
 import { Job } from '../job/job.entity';
 import { buildOnboardingPrompt } from '../prompts/onboarding.prompt';
 import { LLMService } from '../services/llm.service';
 import { Task } from '../task/task.entity';
+import { TaskService } from '../task/task.service';
 import { OnBoarding } from './onBoarding.entity';
 import { OnboardingRepository } from './onBoarding.repository';
 
@@ -108,23 +110,37 @@ export class OnboardingService {
 
     console.log(`[Onboarding] Sending prompt to LLM for userId=${userId}, jobId=${jobId}`);
     const tasks = await this.llmService.generateOnboardingTasks(prompt);
-    console.log(`[Onboarding] LLM returned ${tasks.length} tasks`);
+    console.log(`[Onboarding] LLM returned ${tasks.length} tasks for onboarding id=${onboarding.id}`);
 
-    const savedOnboardingId = await AppDataSource.transaction(async (manager) => {
-      const onboarding = manager.create(OnBoarding, {
-        job: { id: job.id },
-        user: { id: user.id },
-        project: { id: job.project!.id },
-      });
-      const savedOnboarding = await manager.save(OnBoarding, onboarding);
-      console.log(`[Onboarding] Created onboarding record id=${savedOnboarding.id}`);
-
-      await manager.save(Task, tasks.map(task => ({
+    const savedParents = await this.taskService.createTasks(
+      tasks.map(task => ({
         ...task,
-        id: undefined,
-        onboarding: savedOnboarding,
-      })));
-      console.log(`[Onboarding] Saved ${tasks.length} tasks for onboarding id=${savedOnboarding.id}`);
+        subtasks: undefined,
+        onboarding,
+      }))
+    );
+    console.log(`[Onboarding] Saved ${tasks.length} parent tasks for onboarding id=${onboarding.id}`);
+
+    const parentByOrder = new Map(savedParents.map((p) => [p.order, p]));
+
+    const subtaskData: DeepPartial<Task>[] = tasks.flatMap((task) => {
+      const parent = parentByOrder.get(task.order);
+      if (!parent) return [];
+      return (task.subtasks ?? []).map((sub, j) => ({
+        title: sub.title,
+        description: sub.description,
+        estimatedDays: sub.estimatedDays,
+        links: sub.links,
+        isCompleted: false,
+        order: j + 1,
+        parent: { id: parent.id },
+      }));
+    });
+
+    if (subtaskData.length > 0) {
+      await this.taskService.createTasks(subtaskData);
+      console.log(`[Onboarding] Saved ${subtaskData.length} subtasks for onboarding id=${onboarding.id}`);
+    }
 
       return savedOnboarding.id;
     });

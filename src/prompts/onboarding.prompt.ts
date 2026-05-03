@@ -60,7 +60,7 @@ export function buildOnboardingPrompt(input: OnboardingPromptInput): string {
   return `
 You are an expert onboarding manager for a software company. Your job is to create a personalized, sequenced onboarding task board for a new employee.
 
-Use all the information provided below to generate a realistic, practical, and tailored onboarding plan.
+Use all the information provided below to generate a realistic, practical, and tailored onboarding plan. Every task must reference the specific technologies, tools, frameworks, and processes relevant to the job role and project — avoid generic steps that could apply to any company or role.
 
 ## New Employee Profile
 - Name: ${userName}
@@ -95,6 +95,10 @@ Rules:
 - Aim for 6 to 12 tasks total; adjust estimatedDays per task so they add up to ${daysDuration}
 - No single task should exceed half the total duration (${Math.ceil(daysDuration / 2)} days)
 - For each task, include a "links" field: an array of URLs pointing to relevant official documentation (e.g., MDN, official framework docs, GitHub READMEs). Only populate it when the task clearly involves a specific technology that has well-known public docs. If no such documentation applies, set "links" to []. Never invent or guess URLs.
+- Each top-level task must include 2 to 4 subtasks. Subtasks must be concrete, actionable steps that directly break down the parent task.
+- The sum of all subtask estimatedDays must equal the parent task's estimatedDays.
+- Subtasks must NOT include an onboardingId field. They are linked to their parent task, not directly to the onboarding.
+- Make tasks specific to the trainee's skills, experience level, the job's required skills, and the project context. Avoid generic tasks like "Read the docs" — instead reference actual tools, frameworks, and processes relevant to the job and project.
 
 Respond ONLY with a valid JSON array of Task entity objects in this exact format, no explanation or markdown:
 [
@@ -102,7 +106,7 @@ Respond ONLY with a valid JSON array of Task entity objects in this exact format
     "order": 1,
     "title": "Short task title",
     "description": "Detailed description of what the employee should do and why it matters for their onboarding.",
-    "estimatedDays": 1,
+    "estimatedDays": 2,
     "isCompleted": false,
     "links": ["https://example.com/relevant-official-doc"],
     "parent": null,

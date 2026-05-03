@@ -32,14 +32,14 @@ export class TaskRepository {
     this.taskRepository = AppDataSource.getRepository(Task);
   }
 
-  async createTasks(data: Partial<Task>[]): Promise<Task[]> {
+  async createTasks(data: DeepPartial<Task>[]): Promise<Task[]> {
     const tasks = this.taskRepository.create(data);
     return this.taskRepository.save(tasks);
   }
 
   async completeTask(taskId: number): Promise<Task | null> {
     await this.taskRepository.update(taskId, { isCompleted: true });
-    return this.taskRepository.findOneBy({ id: taskId });
+    return this.taskRepository.findOne({ where: { id: taskId }, relations: { subtasks: true } });
   }
 
   async deleteTask(taskId: number): Promise<boolean> {
@@ -77,15 +77,10 @@ export class TaskRepository {
           await taskRepo.delete(toDelete);
         }
 
-        for (const [index, subtask] of subtasks.entries()) {
-          const { id: subtaskId, ...subtaskRest } = subtask;
-          if (subtaskId !== undefined) {
-            await taskRepo.update(subtaskId, subtaskRest);
-          } else {
-            await taskRepo.save(taskRepo.create({ order: index, ...subtaskRest, parent: { id: taskId } }));
-          }
-        }
-      }
+    if (id !== undefined) {
+      await this.taskRepository.update(id, entityData);
+      return this.taskRepository.findOne({ where: { id }, relations: { subtasks: true } });
+    }
 
       return taskRepo.findOne({ where: { id: taskId }, relations: { subtasks: true } });
     });

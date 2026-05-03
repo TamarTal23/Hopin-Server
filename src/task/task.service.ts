@@ -1,3 +1,4 @@
+import { DeepPartial } from 'typeorm';
 import { Task } from './task.entity';
 import { TaskRepository, UpsertTaskInput } from './task.repository';
 
@@ -8,7 +9,7 @@ export class TaskService {
     this.taskRepository = new TaskRepository();
   }
 
-  async createTasks(tasksData: Partial<Task>[]): Promise<Task[]> {
+  async createTasks(tasksData: DeepPartial<Task>[]): Promise<Task[]> {
     return this.taskRepository.createTasks(tasksData);
   }
 

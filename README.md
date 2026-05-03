@@ -151,7 +151,18 @@ The API runs on `http://localhost:3000` by default.
     ```
   - Response `201` (create) / `200` (update):
     ```json
-    { "task": { "id": 1, "order": 1, "title": "...", "description": "...", "estimatedDays": 3, "isCompleted": false, "links": [] } }
+    {
+      "task": {
+        "id": 1,
+        "order": 1,
+        "title": "...",
+        "description": "...",
+        "estimatedDays": 3,
+        "isCompleted": false,
+        "links": [],
+        "subtasks": []
+      }
+    }
     ```
   - Response `404`: task with given `id` not found.
 
@@ -172,7 +183,8 @@ The API runs on `http://localhost:3000` by default.
         "estimatedDays": 3,
         "isCompleted": true,
         "order": 1,
-        "links": ["https://example.com/doc"]
+        "links": ["https://example.com/doc"],
+        "subtasks": []
       }
     }
     ```
@@ -198,14 +210,36 @@ The API runs on `http://localhost:3000` by default.
         "user": { ... },
         "job": { ... },
         "project": { ... },
-        "tasks": [ ... ],
+        "tasks": [
+          {
+            "id": 1,
+            "order": 1,
+            "title": "...",
+            "description": "...",
+            "estimatedDays": 3,
+            "isCompleted": false,
+            "links": [],
+            "subtasks": [
+              {
+                "id": 2,
+                "order": 1,
+                "title": "...",
+                "description": "...",
+                "estimatedDays": 1,
+                "isCompleted": false,
+                "links": [],
+                "subtasks": []
+              }
+            ]
+          }
+        ],
         "progress": 0
       }
     }
     ```
 
 - `GET /onboarding/user/:userId/job/:jobId`
-  - Response: onboarding plan for that user/job combination. `progress` (0–100) is a calculated field: sum of `estimatedDays` for completed tasks divided by total `estimatedDays`, multiplied by 100.
+  - Response: onboarding plan for that user/job combination. `progress` (0–100) is a calculated field: sum of `estimatedDays` for completed top-level tasks divided by total top-level `estimatedDays`, multiplied by 100. Each task includes a `subtasks` array (ordered by `order` ASC).
     ```json
     {
       "onboarding": {
@@ -220,7 +254,7 @@ The API runs on `http://localhost:3000` by default.
     ```
 
 - `GET /onboarding/project/:projectId`
-  - Response: all onboarding plans for the given project, each including a `progress` field.
+  - Response: all onboarding plans for the given project, each including a `progress` field. Each task includes a `subtasks` array.
     ```json
     [
       {
